@@ -4,3 +4,4 @@ app.log
 app/__pycache__
 */**/__pycache__
 
+static
