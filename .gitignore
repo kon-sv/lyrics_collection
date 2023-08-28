@@ -1,0 +1,6 @@
+venv
+sql_app.db
+app.log
+app/__pycache__
+*/**/__pycache__
+
