@@ -1,12 +1,14 @@
+'use client'
 
+let API_URL = process.env.NEXT_PUBLIC_API_URL
 
-
-const SUBSONIC_API_URL = ""
-const API_URL = ""
-const PARAMS = ""
+export let envVars = {
+	"SUBSONIC_API_URL": process.env.NEXT_PUBLIC_SUBSONIC_API_URL,
+	"SUBSONIC_PARAMS": process.env.NEXT_PUBLIC_SUBSONIC_PARAMS
+}
 
 export async function getRandomSongs() {
-	const url = SUBSONIC_API_URL + "getRandomSongs" + "?" + PARAMS
+	const url = envVars.SUBSONIC_API_URL + "getRandomSongs" + "?" + envVars.SUBSONIC_PARAMS
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -16,7 +18,7 @@ export async function getRandomSongs() {
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
 
@@ -24,7 +26,7 @@ export async function getRandomSongs() {
 
 }
 
-export async function getLyrics(id: string) {
+export async function getLyrics(_id: string) {
 	return
 }
 
@@ -47,7 +49,7 @@ export async function getSubsonicSongs(q: any) {
 }
 
 export async function searchSubsonic(query: any) {
-	const url = SUBSONIC_API_URL + "search2" + "?" + PARAMS + "&query=" + query
+	const url = envVars.SUBSONIC_API_URL + "search2" + "?" + envVars.SUBSONIC_PARAMS + "&query=" + query
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -57,7 +59,7 @@ export async function searchSubsonic(query: any) {
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
 
@@ -79,7 +81,7 @@ export async function getAppSongByName(name: string) {
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
 
@@ -98,11 +100,9 @@ export async function searchApplication(query: any) {
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
-
-	console.log(json)
 
 	return json
 }
@@ -122,7 +122,7 @@ export async function createSong(title: string, path: string) {
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
 
@@ -144,7 +144,26 @@ export async function assignLyrics(song_id: string, lyrics: string, language: st
 
 	const json = await res.json()
 	if (json.errors) {
-		console.log(json.errors)
+		console.error(json.errors)
+		throw new Error("failed to fetch API")
+	}
+
+	return json
+}
+
+export async function getAppVars() {
+	API_URL = window.location.origin + "/api/"
+ 	const url = API_URL + "envars"
+	const headers = { 'Content-Type': 'application/json' }
+
+	const res = await fetch(url, {
+		headers,
+		method: "GET"
+	})
+
+	const json = await res.json()
+	if (json.errors) {
+		console.error(json.errors)
 		throw new Error("failed to fetch API")
 	}
 

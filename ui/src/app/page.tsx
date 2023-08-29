@@ -3,9 +3,9 @@
 import SongDetails from '@/components/SongDetails'
 import SongList from '@/components/SongList'
 import SongItemSubsonic from '@/objects/SongItemSubsonic'
-import { getRandomSongs, searchSubsonic, searchApplication, getAppSongByName, createSong } from '@/util/requests'
+import { getRandomSongs, searchSubsonic, searchApplication, getAppSongByName, createSong, getAppVars, envVars} from '@/util/requests'
 import clsx from 'clsx'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 
 
@@ -14,17 +14,23 @@ export default function Home() {
   let [selectedSong, setSelectedSong] = useState<SongItemSubsonic | undefined>()
   let [timeoutState, setTimeoutState] = useState<any>(null)
 
-  const selectSong = useCallback((e: any, song: SongItemSubsonic) => {
+
+  useEffect(() => {
+    getAppVars().then((vars) => {
+      envVars.SUBSONIC_API_URL = vars["SUBSONIC_API_URL"]
+      envVars.SUBSONIC_PARAMS = vars["SUBSONIC_PARAMS"]
+    }).catch(console.error)
+  }, []);
+
+  const selectSong = useCallback((_e: any, song: SongItemSubsonic) => {
     setSelectedSong(song)
     getAppSongByName(song.title).then((s) => {
       if (s.length == 0) {
-        console.log(s)
         // create song entry
         createSong(song.title, song.path)
         
       }
     }).catch(console.error)
-    console.log(e, song)
   }, [])
 
   const onSearch = useCallback((search: string, type: "application" | "navidrome") => {

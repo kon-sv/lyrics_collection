@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 
 import logging
+import os
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -13,13 +14,20 @@ from .database import SessionLocal, engine
 
 app = FastAPI()
 
-logging.basicConfig(filename="app.log", level=logging.DEBUG)
+logging.basicConfig(filename="/tmp/app.log", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 models.Base.metadata.create_all(bind=engine)
 
 
+APP_VARS = {
+    "SUBSONIC_API_URL": os.environ.get("SUBSONIC_API_URL"),
+    "SUBSONIC_PARAMS": os.environ.get("SUBSONIC_PARAMS")
+}
+
 # Dependency
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -90,6 +98,10 @@ def create_lyrics_for_song(
 ):
     return crud.create_song_lyrics(db=db, lyrics=lyrics, song_id=song_id)
 
+
+@app.get("/api/envars")
+def env_vars():
+    return APP_VARS
 
 # @app.post("/api/save-lyrics")
 # async def save_lyrics(songLyrics: SongLyrics):
