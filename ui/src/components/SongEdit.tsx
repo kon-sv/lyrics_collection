@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { EditorState } from 'draft-js';
+import { useCallback, useEffect, useState } from 'react';
+import { ContentState, EditorState } from 'draft-js';
 import clsx from 'clsx';
 
 import { assignLyrics } from '@/util/requests';
@@ -12,18 +12,20 @@ const Editor = dynamic<EditorProps>(
 
 )
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import SongItemSubsonic from '@/objects/SongItemSubsonic';
+import SongItem from '@/objects/SongItem';
+import SongItemInternal from '@/objects/SongItemInternal';
+import LcButton from './layout/LcButton';
 
 
-export default function SongEdit({ song, onSave }: { song?: SongItemSubsonic, onSave?: (evt: any) => void }) {
+export default function SongEdit({ song, onSave }: { song?: SongItem, onSave?: (evt: any) => void }) {
   let [editorState, setEditorState] = useState(EditorState.createEmpty())
+  let [language, setLanguage] = useState("ja")
 
   const onEditorStateChange = useCallback((editorState: EditorState) => {
     setEditorState(editorState)
   }, [])
 
   const save = useCallback(() => {
-    console.log(song)
     let lyrics = editorState.getCurrentContent().getPlainText()
 
 
@@ -34,17 +36,38 @@ export default function SongEdit({ song, onSave }: { song?: SongItemSubsonic, on
     //   id: ""
     // })
 
-    assignLyrics(song?.id as string, lyrics, "ja")
+    assignLyrics(song?.id as string, lyrics, language)
     
   }, [song, editorState])
 
-  return <>
-    <button className={clsx("rounded bg-green-600 p-1 mb-4", "text-center px-2 min-w-[60px] rounded p-1 font-bold bg-gray-600 hover:cursor-pointer hover:bg-green-500")}
-      onClick={(evt) => { save(); onSave && onSave(evt) } }
 
-    >
-      Save
-    </button>
+  useEffect(() => {
+    setEditorState(EditorState.createEmpty())
+    if (song instanceof SongItemInternal) {
+
+      let lyricsGrouped = song.lyricsByLanguage()
+       if (lyricsGrouped[language] != undefined && lyricsGrouped[language].length > 0) {
+          let lyrics =  lyricsGrouped[language]
+          setEditorState(EditorState.createWithContent(ContentState.createFromText(lyrics)))
+    }
+    }
+  }, [song, language])
+
+  return <>
+
+    <div className={clsx("mb-4")}>
+    <LcButton className={clsx("mr-2")} onClick={(evt: any) => { save(); onSave && onSave(evt)}}>Save</LcButton>
+
+    <select className={clsx("bg-gray-500 rounded mr-2 p-1 max-w-[120px]")} onChange={(e) => {setLanguage(e.target.value)}}>
+      <option value="ja">Japanese</option>
+      <option value="en">English</option>
+    </select>
+
+    <input id="isSynced" type="checkbox" className={clsx("mr-2")} />
+    <label htmlFor="isSynced" className={clsx("mr-2")}>Synced</label>
+
+    </div>
+
     <Editor
       editorState={editorState}
       toolbarClassName="toolbarClassName"

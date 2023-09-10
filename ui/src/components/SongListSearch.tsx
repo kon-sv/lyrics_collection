@@ -3,14 +3,15 @@ import { useEffect, useState } from "react";
 
 type SearchTarget = "navidrome" | "application"
 
-export default function SongListSearch({ className, onSearch }: { className: any, onSearch: (q: string, tgt: SearchTarget) => void }) {
+export default function SongListSearch({ className, onSearch }: { className: any, onSearch: (q: string, tgt: SearchTarget, hasLyrics: boolean) => void }) {
 
   let [search, setSearch] = useState("")
-  let [searchTarget, setSearchTarget] = useState<SearchTarget>("navidrome")
+  let [hasLyrics, setHasLyrics] = useState(true)
+  let [searchTarget, setSearchTarget] = useState<SearchTarget>("application")
 
   useEffect(() => {
-    onSearch(search, searchTarget)
-  }, [search, searchTarget])
+    onSearch(search, searchTarget, hasLyrics)
+  }, [search, searchTarget, hasLyrics])
 
 
   return <>
@@ -19,6 +20,11 @@ export default function SongListSearch({ className, onSearch }: { className: any
         <option value="navidrome">Navidrome</option>
         <option value="application">Application</option>
       </select>
+
+      <div>
+        <input id="haslyrics" name="haslyrics" type="checkbox" className={clsx("mr-2")} checked={hasLyrics} onChange={() => setHasLyrics(!hasLyrics)}/>
+        <label htmlFor="haslyrics" className={clsx("mr-2")}>Has Lyrics</label>
+      </div>
       <div className={clsx("mt-2")}>
         <input id="search" onChange={(evt) => { setSearch(evt.target.value);}} className={className} type="text" />
         <button className={clsx("rounded ml-1 w-6 p-1 bg-gray-800")}>S</button>

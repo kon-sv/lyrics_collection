@@ -36,8 +36,20 @@ def create_song_lyrics(db: Session, lyrics: schemas.SongLyricsCreate, song_id: i
     # return crud.create_song_lyrics(db=db, lyrics=lyrics, song_id=song_id)
 
 
-def search_song(db: Session, q: str):
+def search_song(db: Session, q: str, hasLyrics: bool = False):
     # return db.query(models.Song).filter(models.Song.title.ilike(f"%{q}%")).all()
 
     search = "%{}%".format(q)
-    return db.query(models.Song).filter(models.Song.title.like(search)).all()
+    return db.query(models.Song).filter(models.Song.title.like(search)).filter(models.Song.lyrics.any() if hasLyrics else True).all()
+
+
+def delete_song(db: Session, song: schemas.Song):
+    db.delete(song)
+    db.commit()
+    return song
+
+
+def save_song_notes(db: Session, song: models.Song, notes: str):
+    song.notes = notes
+    db.commit()
+    return song

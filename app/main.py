@@ -1,6 +1,9 @@
+from functools import lru_cache
 from fastapi import Depends, HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+
+from typing_extensions import Annotated
 
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +12,13 @@ import logging
 import os
 
 from . import crud, models, schemas
-from .database import SessionLocal, engine
+from .database import SessionLocal
+from . import config
+
+
+@lru_cache()
+def get_settings():
+    return config.Settings()
 
 
 app = FastAPI()
@@ -17,7 +26,7 @@ app = FastAPI()
 logging.basicConfig(filename="/tmp/app.log", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 
 APP_VARS = {
@@ -50,13 +59,6 @@ app.add_middleware(
 )
 
 
-class SongLyrics(BaseModel):
-    id: str
-    lyrics: str
-    filename: str
-    filepath: str
-
-
 @app.get("/api")
 async def root():
     return {"message": "test"}
@@ -80,11 +82,11 @@ def songs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), name: 
 
 
 @app.get("/api/songs/search", response_model=list[schemas.Song])
-def song_search(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), q: str = None):
-    return crud.search_song(db, q)
+def song_search(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), q: str = None, hasLyrics: bool = False):
+    return crud.search_song(db, q, hasLyrics)
 
 
-@app.post("/api/songs", response_model=schemas.Song)
+@ app.post("/api/songs", response_model=schemas.Song)
 def create_song(song: schemas.SongCreate, db: Session = Depends(get_db)):
     db_user = crud.get_song_by_title(db, title=song.title)
     if db_user:
@@ -92,15 +94,35 @@ def create_song(song: schemas.SongCreate, db: Session = Depends(get_db)):
     return crud.create_song(db=db, song=song)
 
 
-@app.post("/api/songs/{song_id}/lyrics/", response_model=schemas.SongLyrics)
+@ app.delete("/api/songs/{song_id}", response_model=schemas.Song)
+def delete_song(song_id: str, db: Session = Depends(get_db)):
+    song = crud.get_song(db, song_id=song_id)
+    if not song:
+        raise HTTPException(status_code=422, detail="Song not found")
+    return crud.delete_song(db=db, song=song)
+
+
+@ app.post("/api/songs/{song_id}/lyrics/", response_model=schemas.SongLyrics)
 def create_lyrics_for_song(
     song_id: int, lyrics: schemas.SongLyricsCreate, db: Session = Depends(get_db)
 ):
     return crud.create_song_lyrics(db=db, lyrics=lyrics, song_id=song_id)
 
 
-@app.get("/api/envars")
-def env_vars():
+@ app.post("/api/songs/{song_id}/notes/", response_model=schemas.Song)
+def save_song_notes(
+    song_id: int, notes: str, db: Session = Depends(get_db)
+):
+    song = crud.get_song(db, song_id=song_id)
+    if not song:
+        raise HTTPException(status_code=422, detail="Song not found")
+    return crud.save_song_notes(db=db, song=song, notes=notes)
+
+
+@ app.get("/api/envars")
+def env_vars(settings: Annotated[config.Settings, Depends(get_settings)]):
+    APP_VARS["SUBSONIC_API_URL"] = settings.subsonic_api_url
+    APP_VARS["SUBSONIC_PARAMS"] = settings.params
     return APP_VARS
 
 # @app.post("/api/save-lyrics")

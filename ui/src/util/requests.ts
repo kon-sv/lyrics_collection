@@ -1,10 +1,9 @@
 'use client'
 
-let API_URL = process.env.NEXT_PUBLIC_API_URL
-
 export let envVars = {
-	"SUBSONIC_API_URL": process.env.NEXT_PUBLIC_SUBSONIC_API_URL,
-	"SUBSONIC_PARAMS": process.env.NEXT_PUBLIC_SUBSONIC_PARAMS
+	"SUBSONIC_API_URL": process.env.NEXT_PUBLIC_SUBSONIC_API_URL as string,
+	"SUBSONIC_PARAMS": process.env.NEXT_PUBLIC_SUBSONIC_PARAMS,
+	"API_URL": process.env.NEXT_PUBLIC_API_URL
 }
 
 export async function getRandomSongs() {
@@ -48,6 +47,38 @@ export async function getSubsonicSongs(q: any) {
 	return q
 }
 
+
+export async function getSubsonicSongById(id: string) {
+	let aa = envVars.SUBSONIC_API_URL + "getSong" + "?" + envVars.SUBSONIC_PARAMS 
+	console.log(aa)
+	let url: URL= new URL(aa)
+	url.searchParams.append("id", id as string)
+	url.searchParams.append("format", "json")
+
+
+
+	const headers = {'Content-Type': 'application/json'}
+	const res = await fetch(url, {
+		headers,
+		method: "GET",
+	})
+	const json = await res.json()
+	if (json.errors) {
+		console.error(json.errors)
+		throw new Error("failed to fetch API")
+	}
+
+	return json['subsonic-response']['song']
+
+}
+
+export function getStreamSubsonicSongURL(id: string): string {
+	let url: URL =  new URL(envVars.SUBSONIC_API_URL + "stream" + "?" + envVars.SUBSONIC_PARAMS)
+	url.searchParams.append("id", id as string)
+	return url.toString()
+
+}
+
 export async function searchSubsonic(query: any) {
 	const url = envVars.SUBSONIC_API_URL + "search2" + "?" + envVars.SUBSONIC_PARAMS + "&query=" + query
 	const headers = { 'Content-Type': 'application/json' }
@@ -70,8 +101,28 @@ export async function getAppSongs(q: any) {
 	return q
 }
 
+
+export async function deleteAppSongById(id: any) {
+	const url = envVars["API_URL"] + "songs/" + id
+	const headers = { 'Content-Type': 'application/json' }
+
+	const res = await fetch(url, {
+		headers,
+		method: "DELETE"
+	})
+
+	const json = await res.json()
+	if (json.errors) {
+		console.error(json.errors)
+		throw new Error("failed to fetch API")
+	}
+
+	return json
+}
+
+
 export async function getAppSongByName(name: string) {
-	const url = API_URL + "songs" + "?" + "name=" + name
+	const url = envVars["API_URL"] + "songs" + "?" + "name=" + name
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -89,8 +140,11 @@ export async function getAppSongByName(name: string) {
 }
 
 
-export async function searchApplication(query: any) {
-	const url = API_URL + "songs/search" + "?q=" + query
+
+
+export async function searchApplication(query: any, hasLyrics: boolean) {
+	const limit = 105
+	const url = envVars["API_URL"] + "songs/search" + "?q=" + query + (hasLyrics ? "&hasLyrics=1" : "") + `&limit=${limit}`
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -107,8 +161,8 @@ export async function searchApplication(query: any) {
 	return json
 }
 
-export async function createSong(title: string, path: string) {
-	const url = API_URL + "songs"
+export async function createSong(title: string, path: string, subsonic_id: string) {
+	const url = envVars["API_URL"] + "songs"
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -116,7 +170,8 @@ export async function createSong(title: string, path: string) {
 		method: "POST",
 		body: JSON.stringify({
 			"title": title,
-			"path": path
+			"path": path,
+			"subsonic_id": subsonic_id
 		})
 	})
 
@@ -130,7 +185,7 @@ export async function createSong(title: string, path: string) {
 }
 
 export async function assignLyrics(song_id: string, lyrics: string, language: string) {
-	const url = API_URL + "songs/" + song_id + "/lyrics/" 
+	const url =  envVars["API_URL"] + "songs/" + song_id + "/lyrics/" 
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -152,8 +207,13 @@ export async function assignLyrics(song_id: string, lyrics: string, language: st
 }
 
 export async function getAppVars() {
-	API_URL = window.location.origin + "/api/"
- 	const url = API_URL + "envars"
+	console.log(process.env.NEXT_PUBLIC_API_URL)
+	let API_URL = envVars["API_URL"]
+	if (!API_URL) {
+		API_URL = window.location.origin + "/api/"
+	}
+
+ 	const url = process.env.NEXT_PUBLIC_API_URL + "envars"
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
@@ -168,5 +228,6 @@ export async function getAppVars() {
 	}
 
 	return json
+
 }
 

@@ -8,10 +8,14 @@ class Song(Base):
     __tablename__ = "songs"
 
     id = Column(Integer, primary_key=True, index=True)
+    subsonic_id = Column(String)
     title = Column(String, index=True)
     path = Column(String, index=True)
 
-    lyrics = relationship("SongLyrics", back_populates="song")
+    notes = Column(String)
+
+    lyrics = relationship(
+        "SongLyrics", back_populates="song", order_by="SongLyrics.id.desc()")
 
 
 class SongLyrics(Base):
