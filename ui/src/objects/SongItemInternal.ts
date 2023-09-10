@@ -33,6 +33,11 @@ export default class SongItemInternal extends SongItem {
       console.log("deleted")
     })
   }
+
+  public getSubsonicId(): string {
+    return this.subsonic_id || ""
+  }
+
 }
 
 

@@ -29,5 +29,9 @@ export default class SongItemSubsonic extends SongItem {
     Object.assign(this, song)
   }
 
+  public getSubsonicId(): string {
+    return this.id
+  }
+
 
 }

@@ -5,4 +5,8 @@ export default class SongItem extends Item {
   title!: string
   path!: string
 
+  public getSubsonicId(): string {
+    return this.id
+  }
+
 }
