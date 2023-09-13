@@ -1,0 +1,5 @@
+venv
+ui/node_modules
+app.log
+sql_app.db
+static
