@@ -207,13 +207,13 @@ export async function assignLyrics(song_id: string, lyrics: string, language: st
 }
 
 export async function getAppVars() {
-	console.log(process.env.NEXT_PUBLIC_API_URL)
 	let API_URL = envVars["API_URL"]
-	if (!API_URL) {
+	if (!API_URL || API_URL == undefined) {
 		API_URL = window.location.origin + "/api/"
+		envVars["API_URL"] = API_URL
 	}
 
- 	const url = process.env.NEXT_PUBLIC_API_URL + "envars"
+ 	const url = API_URL + "envars"
 	const headers = { 'Content-Type': 'application/json' }
 
 	const res = await fetch(url, {
