@@ -1,5 +1,8 @@
 'use client'
 
+import '@fontsource/inter';
+
+
 import SongDetails from '@/components/SongDetails'
 import SongList from '@/components/SongList'
 import SongItem from '@/objects/SongItem'
@@ -7,21 +10,23 @@ import SongItemInternal, { SongItemInternalExtended } from '@/objects/SongItemIn
 import SongItemSubsonic from '@/objects/SongItemSubsonic'
 import { getRandomSongs, searchSubsonic, searchApplication, getAppSongByName, createSong, getAppVars, envVars, getSubsonicSongById} from '@/util/requests'
 import clsx from 'clsx'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 
 import { AppContext } from '@/app/context'
+import AppState from '@/objects/AppState'
+import NowPlaying from '@/objects/NowPlaying'
 
 
 
 export default function Home() {
 
-  let [appReady, setAppReady] = useState<boolean>(false)
 
   let [songs, setSongs] = useState<SongItem[]>([])
   let [selectedSong, setSelectedSong] = useState<SongItem | undefined>()
   let [timeoutState, setTimeoutState] = useState<any>(null)
 
+  let appContext = useContext(AppContext)
 
   useEffect(() => {
     getAppVars().then((vars) => {
@@ -34,7 +39,9 @@ export default function Home() {
 
       envVars.SUBSONIC_API_URL = vars["SUBSONIC_API_URL"]
       envVars.SUBSONIC_PARAMS = vars["SUBSONIC_PARAMS"]
-      setAppReady(true)
+      if (appContext.setAppReady != undefined) {
+        appContext?.setAppReady(true)
+      }
     }).catch(console.error)
   }, []);
 
@@ -117,12 +124,11 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-row p-24 container">
-        <AppContext.Provider value={{appReady, setAppReady}}>
-          <div className={clsx("flex w-full gap-2 flex-grow md:flex-row flex-col")}>
-            <SongList onSearch={onSearch} className="max-w-[448px] min-w-min flex-grow-0 flex-shrink-0" songs={songs} selectSong={selectSong} />
-            <SongDetails onSave={onSave} onDelete={onDelete} song={selectedSong} className="min-w-[600px] basis-2/3 flex-grow flex-auto" />
-          </div>
-        </AppContext.Provider>
+        <div className={clsx("flex w-full gap-2 flex-grow md:flex-row flex-col")}>
+          <SongList onSearch={onSearch} className="max-w-[448px] min-w-min flex-grow-0 flex-shrink-0" songs={songs} selectSong={selectSong} />
+          <SongDetails onSave={onSave} onDelete={onDelete} song={selectedSong} className="min-w-[600px] basis-2/3 flex-grow flex-auto" />
+        </div>
+
     </main>
   )
 }

@@ -2,7 +2,7 @@ import clsx from "clsx"
 import SongLyrics from "./SongLyrics"
 import Tabs from "./Tabs"
 import Tab from "./Tab"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import SongItemSubsonic from "@/objects/SongItemSubsonic"
 import TabContent from "./TabContent"
 import SongEdit from "./SongEdit"
@@ -10,10 +10,15 @@ import SongItemInternal, { SongItemInternalExtended } from "@/objects/SongItemIn
 import SongItem from "@/objects/SongItem"
 import SongPlayback from "./SongPlayback"
 import LcButton from "./layout/LcButton"
+import IAppContext from "@/app/interfaces/AppContextInterface"
+import { AppContext } from "@/app/context"
+import NowPlaying from "@/objects/NowPlaying"
 
 export default function SongDetails({ className, song, onSave, onDelete}: { className: any, song?: SongItem, onSave: any, onDelete: any }) {
 
-  let [selectedTab, setSelectedTab] = useState("Info")
+  let [selectedTab, setSelectedTab] = useState("Lyrics")
+  const appContext: IAppContext = useContext(AppContext)
+
   const tabSelect = useCallback((tabName: string, _: any) => {
     setSelectedTab(tabName)
   }, [])
@@ -88,14 +93,13 @@ export default function SongDetails({ className, song, onSave, onDelete}: { clas
 
         </div>
 
-
-        <div className={clsx("py-2 px-16 mt-4")}>
-          <SongPlayback song={song}/>
+        <div>
+          <LcButton onClick={() => {appContext.appState?.setNowPlaying(new NowPlaying(song))}}>Play</LcButton>
         </div>
 
         <div className={clsx("border-t-2 border-gray-500 my-4")}></div>
         <Tabs>
-          <Tab selectedTab={selectedTab} selection={tabSelect} tabName="Info">
+          <Tab selectedTab={selectedTab} selection={tabSelect} tabName="Lyrics">
           </Tab>
 
           <Tab selectedTab={selectedTab} selection={tabSelect} tabName="Edit">
@@ -106,7 +110,7 @@ export default function SongDetails({ className, song, onSave, onDelete}: { clas
 
         <div className={clsx("border-t-2 border-gray-500 my-4")}></div>
 
-        <TabContent show={selectedTab == "Info"}>
+        <TabContent show={selectedTab == "Lyrics"}>
           <SongLyrics song={song as SongItemInternal}/>
         </TabContent>
 

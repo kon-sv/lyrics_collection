@@ -24,6 +24,7 @@ class SongLyrics(Base):
     id = Column(Integer, primary_key=True, index=True)
     lyrics = Column(String)
     song_id = Column(Integer, ForeignKey("songs.id"))
+    is_synced = Column(Boolean, default=False)
     language = Column(String, index=True)
 
     song = relationship("Song", back_populates="lyrics")

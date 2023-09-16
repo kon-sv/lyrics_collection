@@ -5,6 +5,7 @@ from typing import Optional
 class SongLyricsBase(BaseModel):
     lyrics: str
     language: str
+    is_synced: bool
 
 
 class SongLyricsCreate(SongLyricsBase):

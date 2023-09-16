@@ -1,9 +1,11 @@
+'use client'
+
 import SongItem from "@/objects/SongItem";
 import { getStreamSubsonicSongURL } from "@/util/requests";
 import clsx from "clsx";
 import { useEffect, useRef } from "react";
 
-export default function SongPlayback({song}: {song?: SongItem}) {
+export default function SongPlayback({containerClassName, audioClassName, song}: {containerClassName?: any, audioClassName?: any, song?: SongItem}) {
   const streamUrl = useRef<any>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const audioSourceRef = useRef<HTMLSourceElement>(null)
@@ -19,9 +21,9 @@ export default function SongPlayback({song}: {song?: SongItem}) {
   }, [song])
 
   return <>
-    <div className={clsx("bg-gray-700 border-gray-100 p-0 rounded")}>
+    <div className={containerClassName ?? clsx("bg-gray-700 border-gray-100 p-0 rounded")}>
 
-      <audio ref={audioRef} controls className={clsx("w-full")} onChange={(e) => {console.log(e)}}>
+      <audio ref={audioRef} controls className={audioClassName ?? clsx("w-full")} onChange={(e) => {console.log(e)}}>
         <source ref={audioSourceRef} src={streamUrl.current} type="audio/ogg" />
         Your browser does not support the audio element.
       </audio>

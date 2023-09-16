@@ -184,7 +184,7 @@ export async function createSong(title: string, path: string, subsonic_id: strin
 	return json
 }
 
-export async function assignLyrics(song_id: string, lyrics: string, language: string) {
+export async function assignLyrics(song_id: string, lyrics: string, language: string, isSynced: boolean = false) {
 	const url =  envVars["API_URL"] + "songs/" + song_id + "/lyrics/" 
 	const headers = { 'Content-Type': 'application/json' }
 
@@ -193,14 +193,15 @@ export async function assignLyrics(song_id: string, lyrics: string, language: st
 		method: "POST",
 		body: JSON.stringify({
 			"lyrics": lyrics,
-			"language": language
+			"language": language,
+			"is_synced": isSynced
 		})
 	})
 
 	const json = await res.json()
 	if (json.errors) {
 		console.error(json.errors)
-		throw new Error("failed to fetch API")
+		throw new Error("failed to update API")
 	}
 
 	return json
