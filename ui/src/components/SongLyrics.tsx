@@ -12,15 +12,23 @@ export default function SongLyrics({song} : {song: SongItemInternal}) {
   let [language, setLanguage] = useState<string>("ja")
   let [fontSize, setFontSize] = useState<number>(14)
   let [syncedLyrics, setSyncedLyrics] = useState<boolean>(false)
+  let [lyrics, setLyrics] = useState<any>({})
 
 
   useEffect(() => {
     if (song != undefined && song instanceof SongItemInternal) {
-      set_lyrics_groups(song.lyricsByLanguage()["unsynced"])
+      const lrc = song.lyricsByLanguage()
+      setLyrics(lrc)
     }
 
   }, [song, syncedLyrics])
 
+
+  useEffect(() => {
+    if (lyrics && lyrics != undefined && Object.keys(lyrics).length > 0) {
+      set_lyrics_groups(lyrics[syncedLyrics ? "synced" : "unsynced"])
+    }
+  }, [syncedLyrics, lyrics])
 
 
 

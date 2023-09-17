@@ -22,7 +22,6 @@ export default class SongItemInternal extends SongItem {
     for (l in this.lyrics) {
       if (this.lyrics?.hasOwnProperty(l)) {
         const element: any = this.lyrics[l];
-        console.log(element)
         if (lyrics_grouped[element["language"]] == undefined) {
           if (element["is_synced"]) {
             lyrics_grouped["synced"][element["language"]] = element["lyrics"]

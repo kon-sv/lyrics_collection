@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 
 
-export default function Editor({state = {}, onChange = (_) => {}}: {state: any, onChange: any}) {
+export default function Editor({state = {}, onChange = (_: any) => {}}: {state: any, onChange: any}) {
   let [editorContent, setEditorContent] = useState("")
 
   useEffect(() => {

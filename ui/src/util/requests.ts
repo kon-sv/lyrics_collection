@@ -50,7 +50,6 @@ export async function getSubsonicSongs(q: any) {
 
 export async function getSubsonicSongById(id: string) {
 	let aa = envVars.SUBSONIC_API_URL + "getSong" + "?" + envVars.SUBSONIC_PARAMS 
-	console.log(aa)
 	let url: URL= new URL(aa)
 	url.searchParams.append("id", id as string)
 	url.searchParams.append("format", "json")
@@ -72,12 +71,35 @@ export async function getSubsonicSongById(id: string) {
 
 }
 
+
+export async function getSubsonicCoverArtById(id: string, size?: number) {
+	let aa = envVars.SUBSONIC_API_URL + "getCoverArt" + "?" + envVars.SUBSONIC_PARAMS 
+	let url: URL= new URL(aa)
+	url.searchParams.append("id", id as string)
+
+	if (size) {
+		url.searchParams.append("size", size.toString())
+	}
+
+
+
+	const headers = {'Content-Type': 'image/jpeg'}
+	const res = await fetch(url, {
+		headers,
+		method: "GET",
+	})
+	const blob = await res.blob()
+	return blob
+}
+
 export function getStreamSubsonicSongURL(id: string): string {
 	let url: URL =  new URL(envVars.SUBSONIC_API_URL + "stream" + "?" + envVars.SUBSONIC_PARAMS)
 	url.searchParams.append("id", id as string)
 	return url.toString()
 
 }
+
+
 
 export async function searchSubsonic(query: any) {
 	const url = envVars.SUBSONIC_API_URL + "search2" + "?" + envVars.SUBSONIC_PARAMS + "&query=" + query

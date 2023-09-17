@@ -13,7 +13,7 @@ const Switch = ({label, onChange} : {label: string, onChange?: (e: boolean) => v
 
       <JoySwitch
         checked={checked}
-        onChange={(event: any) => {setChecked(event.target.checked); onChange && onChange(checked)} }
+        onChange={(event: any) => {setChecked(event.target.checked); onChange && onChange(event.target.checked)} }
         color={checked ? 'success' : 'neutral'}
         variant={checked ? 'solid' : 'outlined'}
         endDecorator={label}
