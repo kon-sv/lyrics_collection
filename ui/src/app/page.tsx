@@ -57,6 +57,10 @@ export default function Home() {
         //
         if (autosave) {
           createSong(song.title, song.path, song.id)
+          song.missingAppSong = false
+        } else {
+          song.missingAppSong = true
+          setSelectedSong(song)
         }
         
       }
@@ -108,7 +112,6 @@ export default function Home() {
           setSongs(s
             .map((s: any) => new SongItemInternal(s))
           )
-          console.log(songs)
         }).catch(console.error)
       }
       

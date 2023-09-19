@@ -2,14 +2,12 @@ import clsx from "clsx";
 import SongListItem from "./SongListItem";
 import SongListSearch from "./SongListSearch";
 import SongItem from "@/objects/SongItem";
-import { useState } from "react";
 
 function items(songs: SongItem[], selectSong: any) {
   return songs.map((s: SongItem) => <SongListItem selectSong={selectSong} key={s.id} song={s} />)
 }
 
 export default function SongList({ className, songs, selectSong, onSearch }: { className: any, songs: SongItem[], selectSong: any, onSearch: any }) {
-  let [hasLyrics, setHasLyrics] = useState(false)
   return <>
     <div className={className}>
       <div className={clsx("bg-gray-700 border-gray-100 p-4 rounded")}>

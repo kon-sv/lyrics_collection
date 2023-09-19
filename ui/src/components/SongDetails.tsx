@@ -13,11 +13,14 @@ import LcButton from "./layout/LcButton"
 import IAppContext from "@/app/interfaces/AppContextInterface"
 import { AppContext } from "@/app/context"
 import NowPlaying from "@/objects/NowPlaying"
+import { createSong } from "@/util/requests"
 
 export default function SongDetails({ className, song, onSave, onDelete}: { className: any, song?: SongItem, onSave: any, onDelete: any }) {
 
   let [selectedTab, setSelectedTab] = useState("Lyrics")
   const appContext: IAppContext = useContext(AppContext)
+
+  let [missingSong, setMissingSong] = useState<boolean>(false)
 
   const tabSelect = useCallback((tabName: string, _: any) => {
     setSelectedTab(tabName)
@@ -25,8 +28,17 @@ export default function SongDetails({ className, song, onSave, onDelete}: { clas
 
   useEffect(() => {
     setSelectedTab(selectedTab)
+    setMissingSong(song?.missingAppSong ?? false)
+    if (song instanceof SongItem) { 
+      console.log(song.missingAppSong)
+      console.log(song)
+    }
   }, [song, selectedTab])
 
+
+  // useEffect(() => {
+  //
+  // }, [song?.missingAppSong])
 
   const songDetails = useCallback((song?: SongItem) => {
 
@@ -95,6 +107,10 @@ export default function SongDetails({ className, song, onSave, onDelete}: { clas
 
         <div>
           <LcButton onClick={() => {appContext.appState?.setNowPlaying(new NowPlaying(song))}}>Play</LcButton>
+          { song instanceof SongItemSubsonic && missingSong ? <LcButton className={clsx("ml-2")}
+            onClick={() => {createSong(song.title, song.path, song.getSubsonicId())}}>Save</LcButton>
+            : null
+          }
         </div>
 
         <div className={clsx("border-t-2 border-gray-500 my-4")}></div>
